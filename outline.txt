@@ -1,0 +1,40 @@
+Create Test Contracts in unfrozen state
+Create Array of UnfrozenParameter  
+    struct UnfrozenParameter{
+        state : {frozen}
+        type : {parameter_type},
+        external_contract_setter[]: {contract_setter_names}
+        definition_contract : {contract_defintion_name},
+        library_name : {library_name},
+        getter : "{library_name}.getParameteri()
+    }
+CONSTRAINTS
+1. Setter and Constructor exist in same external contract
+2. Getter function signature equivalent in both states 
+3. Start from unfrozen state. 
+
+
+
+The program works by entering unfrozen state for all freezables. 
+In doing this, everything that is needed is known...
+
+struct Freezable{
+    parameter : {parameterName},
+    parameterType : {parameterType}
+    access : Access,
+}
+
+struct Access{
+    internalGetterSignature : {internalGetterSignature},
+    externalGetterSignature : {externalGetterSignature}.
+    externalSetterSignature : {externalSetterSignature}
+}
+
+If we make freezables independent of one another (i.e. code should a sum of its parts), given 
+the unfrozen system states (1,1...1), we can uniquely generate the proper on-chain configuration.
+How would we verify this on-chain verification? Must generate all variants, create a sequence of all
+external contracts. Sequence can stick to alphabetical order. Retreive bytecode of all relevant contracts 
+(changes). How would on-chain verification work, as we'd want to be efficient with only uploading the necessary
+contracts?
+
+So we look for each variable that switches state, then look at all external contracts effected

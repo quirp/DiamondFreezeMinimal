@@ -1,0 +1,12 @@
+1. Run Formatter
+2. Parse
+Need a main. 
+We'll have an array of Freezable structs ordered by parameter name
+For each element either keep unfrozen or freeze
+Loop
+    If unfrozen, continue.
+    Load appropriate file. 
+        Perform relevant operations on that file
+            perform action on particular field
+                get lines and columns for actions
+                perform actions approprietly
