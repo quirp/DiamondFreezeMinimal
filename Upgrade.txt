@@ -1,0 +1,133 @@
+merkle root of 2N through 2^N 
+Initialization Groups freezables initialized by the same external contract constitute an initialization group
+2^m_1 + 2^m_M ... (where M is the total number of initialization groups)
+loop over all possible configurations
+    compile configuration
+    sequence bytecode
+    hash bytecode elementwise
+upload contract dependencies  
+
+
+
+
+///
+We have an initial state, we XOR the state change to get new state, check those variables
+
+Do we let client submit all the information, have minimal on-chain information for verification purposes?
+Having client reupload can be error prone. Add some extra gas cost to save current state. 
+
+How do set data structure of dependencies on chain?
+contract dependencies
+
+external_contract -> freezables 
+freezables -> external_contracts
+
+Users want to change freezables
+To change freezables need to deploy the appropriate contracts and communicate the intended state target along with 
+new values
+
+
+Users want to change freezables. 
+DApp must take the current state 
+
+
+If an external contract is being changed and contains any frozen variable, ALL frozen variables must be reinstated. 
+No changes need to be made from an unfrozen state. 
+
+On-chain, what do we store? We store the selectors. This would enable a dynamic state space, which would in turn 
+require new merkle proofs. There must be 
+
+New state space would require new selectors, new sequence in general as sequences are ordered via parameter alphabetical
+ordering. 
+
+So dynamic state space would need to be done via new facet, otherwise we're creating a new type encoding protocol. 
+
+
+So new registry upgrade? How can we seperate Freezables from a registry? 
+
+Need to construct the constituents of the Freezables portion of the registry to see how it can fit in with registry implementiatons.
+If the registry is a diamond we can version preserve types 
+
+Dynamic Registry would be needed. 
+Freezables might as well be in a Registry
+How do we route diamond? 
+Would need to route via specialized calls or name functions differently?
+Could do double routing, one at the diamond and the other at the selector (i.e. upgrade), where it then routes
+to your appropriately versioned funciton. This could work if your routing function s
+
+
+UploadVersion
+DeployVersion
+UpgradeVersion
+GetVersion 
+UserEcosystems
+
+Freezables initiated in non-freeze state as default
+
+UploadVersion 
+    Default to non-freeze sequence 
+
+struct Version {
+    address diamondDeploy;
+    bool isActive;
+    uint32 uploadedTimestamp;
+    Facet[] facets;
+}
+
+struct Facet {
+    address facetAddress;
+    bytes4[] functionSelectors;
+}
+
+What is needed? 
+We need to include a freezable state with the verion. Main version, freezable version. 
+XOR current state vs new state for expected variable changes. 
+Can we validate non-changing variables didn't change on upload? This would be difficult, would need specific 
+type sequence per each facet. 
+
+So owner uploads new version. New version comes with its own freeezable state space. 
+
+So uploadVersion would be something like
+
+struct Version{
+    uint32 id;
+    address diamondDeploy
+    bool isActive 
+    uint32 uploadedTimestamp
+    Facet[] facets 
+}
+
+struct UserVersion{
+    uint32 version;
+    Freezable freezableState;
+}
+
+struct Freezable{
+    uint32 stateSpaceSize;
+    bytes4 state;
+}
+
+struct FreezableDependencies{
+
+}
+
+
+M contracts depend on state. 
+N state variables, sequenced.
+n variable changes on state change. 
+n variables changes correspond to getChangedContractAmount(changedState), where changedState is bytes XOR of new state and previous state
+getChangedContractAmount() takes each non-zero flag and checks it's contract dependencies:
+    return each contract that must be changed and the expected state. 
+    The user submits an array of bytes sequences, each subarray corresponds to it's corresponding variable. 
+    These are checked on chain (for the contracts being deployed, update only the variables being update)
+
+need an old state sequence (0110110100)
+need new state sequence    (0110110111)
+
+need dependencies of variables on contracts 
+need contracts dependencies on variables 
+need check to see which variables will be deployed
+    - user must deploy all state variables that either change or are frozen in a group with a changed variable. 
+    - user submitted state variables that aren't designated to change must be compared to previous state for equivalence. 
+    
+
