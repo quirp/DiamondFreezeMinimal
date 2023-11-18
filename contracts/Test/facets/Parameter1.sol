@@ -7,7 +7,7 @@ contract Parameter1 is iParameter1{
     function getParameter1() external view returns (uint256){
         _getParameter1();
     }
-    function setParameter1(uint256 _parameter1) external view {
+    function setParameter1(uint256 _parameter1) external {
         LibA._setParameter1(_parameter1);
     }
 }
