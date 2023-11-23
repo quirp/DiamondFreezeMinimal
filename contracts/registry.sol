@@ -37,11 +37,28 @@ contract FreezableRegistry{
     }
 
     //should just deploy new ecosystem 
+    //This could just be a setup stage
+    //frontend will batch deploys that can fit in on contract
+
     function newEcosystem(uint256 _id) external {
         //check active ecosystem and non-null
         //retrieve version pointer
         //call deploy 
     }
+    function setStateVector(uint256 ecosystemIndex,bytes) external {
+        //check if ecossytem index exists and valid ecosystem
+        //
+    }
+
+    function 
+    /**
+     * Such large transaction sizes, need to break up. 
+     * Given a version and state vector and constructor params
+     * How do we deal with constructor params non-state? 
+     * The issue
+     * If param is invariant via all deployments, then it's not a problem.
+     * If param varies across deployments, it is a problem. 
+     */
     function changeStateVector(bytes32[] calldata stateVector, FacetDeploy[] calldata facets)
     
     function freezableInit() external {
