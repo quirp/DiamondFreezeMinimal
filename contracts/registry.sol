@@ -10,9 +10,11 @@ contract FreezableRegistry{
         bool isActive;
     }
     struct Ecosystem{
-        bytes stateVector;
+        bytes[] nonStateVector;
+        bytes[] stateVector;
         address ecosystemAddress;
         uint256 versionId;
+        bool locked;
         Facet[] facets;
     }
 
@@ -39,16 +41,29 @@ contract FreezableRegistry{
     //should just deploy new ecosystem 
     //This could just be a setup stage
     //frontend will batch deploys that can fit in on contract
-
-    function newEcosystem(uint256 _id) external {
+    //non-state should be stored on-chain
+    //how do we store these vectors? just leave empty slots?, have tooling deal with that.
+    //vectors are different, valued vectors line up differently than state vector.
+    //empty valued vectors and then a translator to state vector
+    function newEcosystem(uint256 _id,bytes[] calldata params) external {
         //check active ecosystem and non-null
         //retrieve version pointer
-        //call deploy 
+        //store non-state,state values, state vector 
+        //lock this ecosystem until upgraded or cancelled with new parameters
+        //execute deployments if first array
     }
-    function setStateVector(uint256 ecosystemIndex,bytes) external {
-        //check if ecossytem index exists and valid ecosystem
-        //
+    function stateChange() external{
+        //should take in a state & non-state vector
     }
+    function cancelStateChange() external{
+        // when changing an ecosystem
+    }
+    function upgradeEcosystem() external {
+        //responsible going from current ecosystem to an upgraded version, consistently 
+    }
+    function deployFacets(bytes[] calldata  )
+  
+
 
     function 
     /**

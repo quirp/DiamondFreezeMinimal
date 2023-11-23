@@ -38,7 +38,7 @@ contract DependencyChecker {
         bool[3][8] memory stateDependencies;
         for (uint i; i < 3; i++) {
             bytes1 contractDependency = contractDependencies[i];
-            for (uint8 j = 0; j < 8; j++) {
+            for (uint8 j ; j < 8; j++) {
                 // Check dependency of each variable
                 bytes1 mask = bytes1(uint8(1) << j);
                 stateDependencies[i][j] = (contractDependency & mask) != 0 && (variableChanges & mask) != 0;
