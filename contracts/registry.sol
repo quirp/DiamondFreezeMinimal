@@ -13,6 +13,7 @@ contract FreezableRegistry{
         bytes[] nonStateVector;
         bytes[] stateVector;
         address ecosystemAddress;
+        bytes[] nonStateParameters;
         uint256 versionId;
         bool locked;
         Facet[] facets;
@@ -45,23 +46,24 @@ contract FreezableRegistry{
     //how do we store these vectors? just leave empty slots?, have tooling deal with that.
     //vectors are different, valued vectors line up differently than state vector.
     //empty valued vectors and then a translator to state vector
+    // state vector  and constructor param vector
     function newEcosystem(uint256 _id,bytes[] calldata params) external {
         //check active ecosystem and non-null
         //retrieve version pointer
-        //store non-state,state values, state vector 
+        //store parameters ( check types )
         //lock this ecosystem until upgraded or cancelled with new parameters
         //execute deployments if first array
     }
-    function stateChange() external{
+    function parameterChange() external{
         //should take in a state & non-state vector
     }
-    function cancelStateChange() external{
+    function cancelParameterChange() external{
         // when changing an ecosystem
     }
     function upgradeEcosystem() external {
         //responsible going from current ecosystem to an upgraded version, consistently 
     }
-    function deployFacets(bytes[] calldata  )
+    function deployFacets(bytes[] calldata  ) external 
   
 
 
@@ -95,3 +97,6 @@ contract FreezableRegistry{
     }
 
 }
+
+
+// fetch the address to the generated version contract 
