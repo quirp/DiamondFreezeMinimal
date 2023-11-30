@@ -13,21 +13,17 @@ contract RegistryVersion12 {
         //internal route
     }
     function upgradeVersion(
+        uint256 version, 
         uint256 previousVersion,
         FacetParameters memory facetParameters,
         FreezableParameters memory freezableParameters
     )
     external{
-
+            //Do this last, need to work this out
     }
-    function uploadVersion(
-        uint256 version,
-        FacetParameters memory facetParameters,
-        FreezableParameters memory freezableParameters
-    ) external{
-
-    }
-    function parameterChange(FacetParameters memory facetParameters,
+    
+    function parameterChange( uint256 version,
+                                FacetParameters memory facetParameters,
                              FreezableParameters memory freezableParameters
     ) external {
 

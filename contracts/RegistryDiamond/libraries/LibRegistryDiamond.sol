@@ -34,3 +34,6 @@ library LibRegistryDiamond {
         //
     }
 }
+
+
+//Need data structure which finds appropriate version given a selector input
