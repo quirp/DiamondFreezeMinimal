@@ -10,7 +10,8 @@
   "license": "MIT",
   "dependencies": {
     "@solidity-parser/parser": "^0.16.2",
-    "hardhat": "^2.19.0"
+    "hardhat": "^2.19.0",
+    "sol-merger": "^4.4.0"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
