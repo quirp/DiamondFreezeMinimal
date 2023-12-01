@@ -27,9 +27,8 @@ contract Diamond {
         });
         LibDiamond.diamondCut(cut, address(0), "");
     }
-    function deploySelectorRoute() private returns (address){
-        bytes4[] memory _deploySelectors  = LibRegistryDiamond.getDeploySelectors();
-
+    function versionMethod() private returns (address) {
+        LibRegistryDiamond.RegistryDiamondStorage storage ds = LibRegistryDiamond.registryDiamondStorage(); 
     }
     // Find facet for function that is called and execute the
     // function if a facet is found and return any value.
