@@ -1,12 +1,16 @@
 pragma solidity ^0.8.9;
 
 //owner
+import "./LibDiamond.sol";
+
 library LibRegistryDiamond {
     bytes32 constant REGISTRY_DIAMOND_STORAGE_POSITION =
         keccak256("registry.diamond.storage");
+
     event NewVersion(uint256);
     event ActivatedVersion(uint256);
     event DeactivatedVersion(uint256);
+
     struct Version {
         address versionAddress;
         bool isActive;
@@ -20,11 +24,11 @@ library LibRegistryDiamond {
     function registryDiamondStorage()
         internal
         pure
-        returns (RegistryDiamondStorage storage ds)
+        returns (RegistryDiamondStorage storage rs)
     {
         bytes32 position = REGISTRY_DIAMOND_STORAGE_POSITION;
         assembly {
-            ds.slot := position
+            rs.slot := position
         }
     }
 
@@ -39,20 +43,30 @@ library LibRegistryDiamond {
         bytes4[] memory registrySelectors,
         bool isActive
     ) internal {
-        RegistryDiamondStorage storage ds = registryDiamondStorage();
+        RegistryDiamondStorage storage rs = registryDiamondStorage();
         require(
-            version > ds.latestVersion,
+            version > rs.latestVersion,
             "Uploaded version number must be greater than the latest version"
         );
-
-        for (uint256 i; i < registrySelectors.length; i++) {
-            ds.inclusionSet[registrySelectors[i]] = true;
+        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        for (
+            uint256 selectorIndex;
+            selectorIndex < registrySelectors.length;
+            selectorIndex++
+        ) {
+            bytes4 _selector = registrySelectors[selectorIndex];
+            require(
+                ds.selectorToFacetAndPosition[_selector].facetAddress !=
+                    address(0),
+                "New version collides with pre-existing "
+            );
+            rs.inclusionSet[registrySelectors[selectorIndex]] = true;
         }
 
-        ds.version[version] = Version(versionContract, isActive);
+        rs.version[version] = Version(versionContract, isActive);
 
         if (isActive) {
-            ds.latestVersion = version; // else can be changed in activateVersion method
+            rs.latestVersion = version; // else can be changed in activateVersion method
             emit NewVersion(version);
         }
     }

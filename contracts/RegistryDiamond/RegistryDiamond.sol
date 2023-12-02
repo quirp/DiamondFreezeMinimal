@@ -27,12 +27,28 @@ contract Diamond {
         });
         LibDiamond.diamondCut(cut, address(0), "");
     }
-    function versionMethod() private returns (address) {
-        LibRegistryDiamond.RegistryDiamondStorage storage ds = LibRegistryDiamond.registryDiamondStorage(); 
+    function addressRoute() private returns (address route_){
+        LibRegistryDiamond.RegistryDiamondStorage storage rs = LibRegistryDiamond.registryDiamondStorage();
+        uint256 version;
+        if( rs.inclusionSet[msg.sig] ){
+            assembly{
+                version := calldataload(4)
+            }
+            route_ = rs.version[version].versionAddress; //address zero check in fallback
+        }
+        else{
+            //facet logic
+            LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+            route_ = ds.selectorToFacetAndPosition[msg.sig].facetAddress;
+        }
+        require(route_ != address(0), "Diamond: Function does not exist");
+        
+
     }
     // Find facet for function that is called and execute the
     // function if a facet is found and return any value.
     fallback() external payable {
+        address route;
         LibDiamond.DiamondStorage storage ds;
         bytes32 position = LibDiamond.DIAMOND_STORAGE_POSITION;
         // get diamond storage
@@ -40,16 +56,13 @@ contract Diamond {
             ds.slot := position
         }
         // get facet from function selector
-        deploySelectorRoute()
-        console.logBytes4(msg.sig);
-        address facet = ds.selectorToFacetAndPosition[msg.sig].facetAddress;
-        require(facet != address(0), "Diamond: Function does not exist");
+        route = addressRoute();
         // Execute external function from facet using delegatecall and return any value.
         assembly {
             // copy function selector and any arguments
             calldatacopy(0, 0, calldatasize())
             // execute function call using the facet
-            let result := delegatecall(gas(), facet, 0, calldatasize(), 0, 0)
+            let result := delegatecall(gas(), route, 0, calldatasize(), 0, 0)
             // get any return value
             returndatacopy(0, 0, returndatasize())
             // return any return value or error back to the caller
@@ -69,4 +82,11 @@ contract Diamond {
 //Do we remap selectors, or create a different key for selectors (i.e
 // function(version + selector) -> newKey? )
 /**
+    We should be able to do the second option, as that is abstracted from the user.
+    The user simply interfaces with it as normal, and lets the version parameter. 
+    So when a user cuts a new facet, they need to ignore the warning of selector 
+    collisions though, which might be problematic for other diamond implementations. 
+    But this is a tradeoff
+
+    
  */
