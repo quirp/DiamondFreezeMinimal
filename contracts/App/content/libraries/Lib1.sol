@@ -1,19 +1,19 @@
 pragma solidity ^0.8.9;
 
 
-library LibA {
+library Lib1 {
 
-    bytes32 constant LIBA_STORAGE_POSITION = keccak256("diamond.storage.liba");
+    bytes32 constant LIB1_STORAGE_POSITION = keccak256("diamond.storage.liba");
 
-    struct LibAStorage{
+    struct Lib1Storage{
         //..
         uint256 parameter1;
 
         //...
     }
 
-    function libAStorage() internal pure returns ( LibAStorage storage ls){
-        bytes32 storage_slot = LIBA_STORAGE_POSITION;
+    function libAStorage() internal pure returns ( Lib1Storage storage ls){
+        bytes32 storage_slot = LIB1_STORAGE_POSITION;
         assembly{
             ls.slot := storage_slot
         }
@@ -22,7 +22,7 @@ library LibA {
         return libAStorage().parameter1;
     }
     function _setParameter1(uint256 _parameter1) internal{
-        LibAStorage storage ls = libAStorage();
+        Lib1Storage storage ls = libAStorage();
         ls.parameter1 = _parameter1;
     }
 }

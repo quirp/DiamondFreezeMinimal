@@ -32,7 +32,9 @@ Need the variable name on-chain?
 For now, all of this would determine everything needed. 
 Need top level containing contract. 
 struct FreezableConfig{
-    contract : contractNameFromArtifacts,
-    UnionType (variableName or )
+    variableName: parameter1,
+    variableType: address,
+    containingContracts : contractNameFromArtifacts[],
+    UnionType (variableName or variableInterface)
 }
  */

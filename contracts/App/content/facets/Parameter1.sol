@@ -1,9 +1,9 @@
 pragma solidity ^0.8.9;
 
 import "../internals/iParameter1.sol";
-import "../libraries/LibA.sol";
+import "../libraries/Lib1.sol";
 
-contract Parameter1 is iParameter1{
+contract First is iFirst{
     function getParameter1() external view returns (uint256){
         _getParameter1();
     }

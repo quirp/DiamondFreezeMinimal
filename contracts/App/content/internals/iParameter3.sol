@@ -1,16 +1,18 @@
 pragma solidity ^0.8.9;
 
 import "../libraries/Lib2.sol";
-
-contract iSecond {
+import "../libraries/Lib3.sol";
+contract iThird {
     address immutable owner;
 
     constructor(address _owner) {
         owner = _owner;
     }
-
-    function _getFunction() internal view returns (address) {
+function _getFunction2() internal view returns (address) {
         return Lib2._getParameter2();
+    }
+    function _getFunction() internal view returns (bytes4) {
+        return Lib3._getParameter3();
     }
 }
 

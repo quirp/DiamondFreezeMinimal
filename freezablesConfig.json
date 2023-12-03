@@ -1,9 +1,20 @@
 [
     {
         "variableName": "parameter1",
+        "variableType": "uint256",
         "variableInterface": "parameter1",
-        "containingContracts" : [""]
+        "containingContracts" : ["Parameter1"]
         
         
+    },
+    {
+        "variableName": "parameter2",
+        "variableType": "address",
+        "variableInterface":{
+            "extGetter":"getFunction()",
+            "extSetter":"setFunction(address)",
+            "intGetter":"_getFunction()"
+        },
+        "containingContracts":["Parameter2"]
     }
 ]
