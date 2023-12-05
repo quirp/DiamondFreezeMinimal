@@ -79,14 +79,3 @@ contract Diamond {
     receive() external payable {}
 }
 
-//Do we remap selectors, or create a different key for selectors (i.e
-// function(version + selector) -> newKey? )
-/**
-    We should be able to do the second option, as that is abstracted from the user.
-    The user simply interfaces with it as normal, and lets the version parameter. 
-    So when a user cuts a new facet, they need to ignore the warning of selector 
-    collisions though, which might be problematic for other diamond implementations. 
-    But this is a tradeoff
-
-    
- */
