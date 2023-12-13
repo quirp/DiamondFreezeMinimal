@@ -1,7 +1,7 @@
 const parser = require('@solidity-parser/parser');
 const fs = require('fs');
 
-const inputFilePath = '/home/joe/Documents/FreezeVariables/contracts/internals/iParameter2.sol'; // Path to the Solidity file
+const inputFilePath = './contract_temp/App/content/facets/Parameter2.sol'; // Path to the Solidity file
 
 function enforceFunctionIsolation(sourceCode) {
     try {

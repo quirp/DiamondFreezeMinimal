@@ -1,0 +1,25 @@
+{
+    "name": "your-extension-name",
+    "displayName": "Your Extension Name",
+    "description": "Description of your extension",
+    "version": "1.0.0",
+    "publisher": "your-publisher-name",
+    "engines": {
+        "vscode": "^1.0.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "contributes": {
+        "commands": [
+            {
+                "command": "extension.openWebview",
+                "title": "Open Webview"
+            }
+        ]
+    },
+    "dependencies": {
+        "generator-code": "^1.8.1",
+        "yo": "^5.0.0"
+    }
+}

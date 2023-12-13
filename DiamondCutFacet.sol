@@ -1,43 +1,43 @@
 pragma solidity ^0.8.9;
 
 
-library LibA {
-
-    bytes32 constant LIBA_STORAGE_POSITION = keccak256("diamond.storage.liba");
-
-    struct LibAStorage{
-        
-        uint256 parameter1;
-
-        
+library Lib2 {
+    bytes32 constant LIB2_STORAGE_POSITION = keccak256("diamond.storage.Lib2");
+    struct Lib2Storage{  
+        address parameter2;
     }
-
-    function libAStorage() internal pure returns ( LibAStorage storage ls){
-        bytes32 storage_slot = LIBA_STORAGE_POSITION;
+    function lib2Storage() internal pure returns ( Lib2Storage storage ls){
+        bytes32 storage_slot = LIB2_STORAGE_POSITION;
         assembly{
             ls.slot := storage_slot
         }
     }
-    function _getParameter1() internal view returns( uint256 ){
-        return libAStorage().parameter1;
+    function _getParameter2() internal view returns( address ){
+        return lib2Storage().parameter2;
     }
-    function _setParameter1(uint256 _parameter1) internal{
-        LibAStorage storage ls = libAStorage();
-        ls.parameter1 = _parameter1;
-    }
-}
-
-contract iParameter1 {
-    function _getParameter1() internal view returns (uint256) {
-        return LibA._getParameter1();
+    function _setParameter2(address _parameter2) internal{
+        Lib2Storage storage ls = lib2Storage();
+        ls.parameter2 = _parameter2;
     }
 }
+contract iSecond {
+    address immutable owner;
 
-contract Parameter1 is iParameter1{
-    function getParameter1() external view returns (uint256){
-        _getParameter1();
+    constructor(address _owner) {
+        owner = _owner;
     }
-    function setParameter1(uint256 _parameter1) external {
-        LibA._setParameter1(_parameter1);
+    function _getFunction() internal view returns (address) {
+        return Lib2._getParameter2();
+    }
+}
+contract Second is iSecond {
+    constructor(address owner) iSecond(owner) {}
+
+    function getFunction2() external view returns (address) {
+        _getFunction();
+    }
+
+    function setFunction2(address _parameter2) external {
+        Lib2._setParameter2(_parameter2);
     }
 }
