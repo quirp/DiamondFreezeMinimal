@@ -8,7 +8,6 @@ contract iFreezable is iOwnership{
     struct Freezable { 
         FreezableAction action; 
         bytes32 newStateVector;
-        address newFreezableAddress;
     }
     
     function _freezableCut(Freezable memory __freezableCut, DiamondCut memory _diamondCut) internal {
@@ -19,3 +18,11 @@ contract iFreezable is iOwnership{
     }
 
 }
+/**
+ * 2 seperate storages. (We must know which selectors exist in the freezableVersion)
+ * Must check to make sure not overwriting non freezable vs freezable storage.
+ * Do we need to make the freezable distinction with respect to storage?
+ * Diamond already blocks selector collisions
+ * 
+ * Just leave the base diamond/facets as is and go straight to the freezeable?
+ */
