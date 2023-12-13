@@ -25,4 +25,15 @@ contract iFreezable is iOwnership{
  * Diamond already blocks selector collisions
  * 
  * Just leave the base diamond/facets as is and go straight to the freezeable?
+ * 
+ * Check contract dependencies before cutting. 
+ * But what about normal upgrades that don't effect the freezable state? This could be a 
+ * bit tricky, and would likely need to be done off-chain. 
+ * 
+ * Would want verification of parameter arguments on non-transformations. 
+ * Every freezable contract must be verified regardless (for non-New transforms)
+ * So check if diamondCut[i].facetAddress is including in freezable set.
+ * If it is, revert. Otherwise enable cut. Shared storage, selector collision will be alerted. 
+ * Unintentionally modifying freezable can't be done unless going through freezable external. 
+ * 
  */
