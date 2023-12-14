@@ -4,19 +4,27 @@ contract FreezableManage{
     /**
     @New - Creates a new state space
      */
+    enum FacetCutAction {Add, Replace, Remove}
     enum FreezableAction {New,Transform,None,Remove}
     struct FacetFreezeCut{
         address facetAddress;
+        bytes4[] facetSelectors;
         bytes verifyData;
+        FacetCutAction cutAction;
     }
+ 
     struct FreezableDeploy{
         FreezableAction action;    
         bool[] paramChange;
     }
     function freezableManage(FreezableDeploy memory _freezableDeploy, DiamondCut[] memory diamondCut, address init, bytes _initializationData) external{
-
-        
-    
+        if (_freezableDeploy.action == FreezeableAction.Transform) _freezableTransform();
+        /**
+         * 
+         */
+    }
+    function _freezableTransform() internal {
+        //
     }
 }
 
