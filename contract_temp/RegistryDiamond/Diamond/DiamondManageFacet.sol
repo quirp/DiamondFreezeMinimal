@@ -112,4 +112,7 @@ So we create an bit map address => bool.
 Also how to make it scalable? For now just retrieve one-by-one. 
 
 
+
+When cutting a facet, need to know if it's a freezable or not. 
+This is because we MUST verify any facet that is part of the freezable contract set.
  */

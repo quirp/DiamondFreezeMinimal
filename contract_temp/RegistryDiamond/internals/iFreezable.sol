@@ -5,11 +5,27 @@ import "../libraries/LibFreezable.sol";
 import "../internals/iOwnership.sol";
 contract iFreezable is iOwnership{
     enum FreezableAction {Transform, New, Remove}
+    struct NewFreezableSpace{
+        address[] freezableAddress;
+    }
+    /**
+    @
+     */
     struct Freezable { 
         FreezableAction action; 
+        address freezableVersionContract;
         bytes32 newStateVector;
+        NewFreezableSpace freezableAddresses;
     }
     
+    function _freezableManage(DiamondCut memory _diamondCut, address init, bytes data, Freezable memory _freezable) internal{
+        //need to check if _freezable is creating a new facet or not
+        //if it is, use these new addresses as the contracts
+        if(_freezable.action == FreezableAction.New){
+            //extract addresses from cut
+            //
+        }
+    }
     function _freezableCut(Freezable memory __freezableCut, DiamondCut memory _diamondCut) internal {
         if( __freezableCut.action == FreezableAction.Transform){
             //cutOnto diamond
@@ -35,5 +51,9 @@ contract iFreezable is iOwnership{
  * So check if diamondCut[i].facetAddress is including in freezable set.
  * If it is, revert. Otherwise enable cut. Shared storage, selector collision will be alerted. 
  * Unintentionally modifying freezable can't be done unless going through freezable external. 
+
+
+ * We need a way to make new state spaces less costly. We should make it so only the dependent
+ * facets need to be upgraded. User must specify the facet relation from old and new. 
  * 
  */
