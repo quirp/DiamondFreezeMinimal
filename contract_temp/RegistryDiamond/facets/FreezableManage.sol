@@ -1,30 +1,61 @@
 pragma solidity ^0.8.9;
 
+import "../libraries/LibFreezable.sol";
 contract FreezableManage{
     /**
     @New - Creates a new state space
      */
-    enum FacetCutAction {Add, Replace, Remove}
+    event FreezableTransformed(bytes32 newState, bytes32 deltaState);
     enum FreezableAction {New,Transform,None,Remove}
-    struct FacetFreezeCut{
+    enum DiamondCutAction {Add, Replace, Remove}
+    struct FreezeFacetCut{
         address facetAddress;
+        DiamondCutAction action;
         bytes4[] facetSelectors;
+        FreezeVerify freezeFacetVerify;
+    }
+    struct FreezeVerify{
         bytes verifyData;
-        FacetCutAction cutAction;
+        string facetName;
     }
- 
-    struct FreezableDeploy{
+    struct FreezableConfig{
         FreezableAction action;    
-        bool[] paramChange;
+        bytes4 freezableVerifySelector;
+        bytes32 paramChange;
+        bytes32 newState;
+        bytes stateParams;
     }
-    function freezableManage(FreezableDeploy memory _freezableDeploy, DiamondCut[] memory diamondCut, address init, bytes _initializationData) external{
-        if (_freezableDeploy.action == FreezeableAction.Transform) _freezableTransform();
+    function freezableManage(FreezableConfig memory _freezableConfig,FreezeFacetCut memory _freezeFacetCut, address init, bytes _initializationData) external{
+        LibFreezable.FreezableStorage storage fs = LibFreezable.freezableStorage();
+        address _freezableManageAddress = fs.freezableManageAddress;
         /**
-         * 
-         */
-    }
-    function _freezableTransform() internal {
-        //
+            TRANSFORM - 
+                Contracts fixed order, represent particular facets, slots determine type. 
+            Call freezableVersion - 
+            
+            call(freezablVersion) - calls parameter verification with the struct, verifies parameters.
+            must include changeVector, current state (storage), previous params(storage), new state
+
+            Everything is done in freezableVersion
+
+            1. We send over to main. 
+            2. Struct only contains relevant parameters that are being frozen or are frozen and dependent on a changing contract. 
+            3. Verify the frozen non-changing parameters don't change, and the frozen changing parameters do change. 
+            3a. We create a for loop to call a verification method .
+
+            We don't need storage of frozen paramters if they're frozen into facets already, we 
+            Only verificaiton done is:
+            1. Find contract dependencies from changing vector.
+            2. Call this contract with the calldata for verification, must return success, bubble up error. 
+            3. Once all the contracts are verified, cut all of the facets. 
+         */    
+        if ( _freezableConfig.action == FreezableAction.Transform){
+            (bool success, bytes memory data) = _freezableManageAddress.call(
+                abi.encodeWithSelector(_freezableConfig.freezableVerifySelector,
+                                        _freezableConfig.stateParams, 
+                                        _freezableConfig.deltaState,
+                                        _freezableConfig.newState ));
+        }
     }
 }
 
