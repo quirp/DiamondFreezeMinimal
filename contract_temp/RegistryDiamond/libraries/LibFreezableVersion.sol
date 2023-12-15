@@ -10,11 +10,11 @@ library FreezableVersion {
     // struct keeps types.
     //
     struct FreezeableState {
+        bool a;
+        bool b;
         address userAddress;
         uint128 lowerAmount;
         uint128 upperAmount;
-        bool a;
-        bool b;
     }
 
     uint8 constant freezableStateSize = 20;
