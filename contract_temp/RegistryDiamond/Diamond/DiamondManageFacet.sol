@@ -115,4 +115,8 @@ Also how to make it scalable? For now just retrieve one-by-one.
 
 When cutting a facet, need to know if it's a freezable or not. 
 This is because we MUST verify any facet that is part of the freezable contract set.
+Not part of the freezableSet, normal diamond cut.
+This also enables us to create two sepearate externals, dimaondCut and freezableManage (cut,transform,)
+Want to verify for a basic upgrade? I'd say so. 
+
  */

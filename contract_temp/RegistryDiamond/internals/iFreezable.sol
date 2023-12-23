@@ -54,6 +54,10 @@ contract iFreezable is iOwnership{
 
 
  * We need a way to make new state spaces less costly. We should make it so only the dependent
- * facets need to be upgraded. User must specify the facet relation from old and new. 
+ * facets need to be upgraded. User must specify the facet relation from old and new. This would 
+ * be a mapping from 
+
+ * User could just specify addresses, could check..
+   It seems like New must be a seperate transaction? Otherwise we losing typing. 
  * 
  */

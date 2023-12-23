@@ -1,33 +1,30 @@
 pragma solidity ^0.8.9;
 
-import "../libraries/LibFreezable.sol";
-contract FreezableManage{
+import "./LibFreezable.sol";
+import "./FreezableStructs.sol";
+contract FreezableManage is FreezableStructs {
     /**
     @New - Creates a new state space
      */
     event FreezableTransformed(bytes32 newState, bytes32 deltaState);
-    enum FreezableAction {New,Transform,None,Remove}
-    enum DiamondCutAction {Add, Replace, Remove}
-    struct FreezeFacetCut{
-        address facetAddress;
-        DiamondCutAction action;
-        bytes4[] facetSelectors;
-        FreezeVerify freezeFacetVerify;
-    }
-    struct FreezeVerify{
-        bytes verifyData;
-        string facetName;
-    }
-    struct FreezableConfig{
-        FreezableAction action;    
-        bytes4 freezableVerifySelector;
-        bytes32 paramChange;
-        bytes32 newState;
-        bytes stateParams;
-    }
-    function freezableManage(FreezableConfig memory _freezableConfig,FreezeFacetCut memory _freezeFacetCut, address init, bytes _initializationData) external{
-        LibFreezable.FreezableStorage storage fs = LibFreezable.freezableStorage();
-        address _freezableManageAddress = fs.freezableManageAddress;
+   
+
+    /**
+     *
+     * @param _freezableConfig
+     * @param _freezeFacetCut
+     * @param init
+     * @param _initializationData
+     */
+    function freezableManage(
+        FreezableConfig memory _freezableConfig,
+        FreezeFacetCut memory _freezeFacetCut,
+        address init,
+        bytes _initializationData
+    ) external {
+        LibFreezable.FreezableStorage storage fs = LibFreezable
+            .freezableStorage();
+        
         /**
             TRANSFORM - 
                 Contracts fixed order, represent particular facets, slots determine type. 
@@ -41,20 +38,23 @@ contract FreezableManage{
             1. We send over to main. 
             2. Struct only contains relevant parameters that are being frozen or are frozen and dependent on a changing contract. 
             3. Verify the frozen non-changing parameters don't change, and the frozen changing parameters do change. 
-            3a. We create a for loop to call a verification method .
+            3a. We create a for loop to call a verification method.
 
             We don't need storage of frozen paramters if they're frozen into facets already, we 
             Only verificaiton done is:
             1. Find contract dependencies from changing vector.
             2. Call this contract with the calldata for verification, must return success, bubble up error. 
             3. Once all the contracts are verified, cut all of the facets. 
-         */    
-        if ( _freezableConfig.action == FreezableAction.Transform){
+         */
+        if (_freezableConfig.action == FreezableAction.Transform) {
+            (address _freezableManageAddress,bytes4 freezableVerifySelector) = fs.freezableManageAddress;
             (bool success, bytes memory data) = _freezableManageAddress.call(
-                abi.encodeWithSelector(_freezableConfig.freezableVerifySelector,
-                                        _freezableConfig.stateParams, 
-                                        _freezableConfig.deltaState,
-                                        _freezableConfig.newState ));
+                abi.encodeWithSelector(
+                    freezableVerifySelector,
+                    _freezableConfig.freezableTransform,
+                    _freezeFacetCut
+                )
+            );
         }
     }
 }
