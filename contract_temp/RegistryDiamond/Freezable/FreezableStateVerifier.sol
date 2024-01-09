@@ -1,22 +1,50 @@
 pragma solidity ^0.8.9;
 
 import "./FreezableStructs.sol";
-
+import "./LibDiamond.sol";
+/**
+ *
+ * @title Freezeable State Verifier
+ * @author Joe Cocchi
+ * @notice FreezableStateVerifier is responsible for maintaining a consistent freezeable 
+ *         state across facet cuts. In this implementation of freezeable management, 
+ *         we require:
+ *              1. Any facet cuts that contain a freezeable variable must be 
+ *         **verified** 
+ *              2. 
+ * 
+ *         Verifying consists of ABI encoding your *frozen* freezeables of a given facet. 
+ *         There is a natural ordering of freezeable variables from the configuration 
+ *         file and we choose to order lowest index to highest. This abi encoded data is 
+ *         then sent to a dedicated verifier function on that facet, which should assert
+ *         equivalence. 
+ * 
+ *         Note: Although the verifier is external and has implicit type casting on the 
+ *         incoming calldata, the automatically generated verifier will instead take a 
+ *         bytes type, then the keccack256 of this value will be compared to the frozen 
+ *         signature (bytes32) for equivalence. 
+ *          
+ *         This verificaton method in the facet can be overidden by the user, 
+ *         but is implemented for ease of handling general type comparisions. 
+ *         (Deciding when comparing arbitrary array's/struct's values one by one 
+ *         is less optimal than a keccak256 comparison isn't obvious to me at
+ *         the time of writing ).
+ *           
+ */
 contract FreezableStateVerifier is FreezableStructs {
     // only need uint16 for any amounts of "hardcoded items" within a contract
     error InvalidFreezableFacetIndex(bytes2);
     error VerificationFailed(address, bytes2, bytes);
-    error InvalidContractVerification(address, bytes2, bytes);
+    error NonFreezeableVerification(address, bytes2, bytes);
     error InvalidFreezableCut(bytes32);
-    
-    uint16 constant AMOUNT_FREEZABLE_CONTRACTS = 5;
-    struct FacetFreezableDependencies {
-        string facetName;
-        bytes4 verifySelector;
-        bytes32 dependencies;
-    }
+    error InvalidVerifierArrayLengths(uint16, uint16);
 
-    uint8 constant freezableStateSize = 20;
+    event FreezableFacetsVerified(bytes32, FreezeableVerify[]);
+
+    uint16 constant AMOUNT_FREEZEABLE_CONTRACTS = 5;
+    uint8 constant AMOUNT_FREEZEABLE_VARIABLES = 20;
+
+   
 
     function getContractStateDependencies()
         internal
@@ -51,14 +79,40 @@ contract FreezableStateVerifier is FreezableStructs {
      * getDependent contracts will generate the conractDependency vector that the
      * FreezableFacet verification is required to equal at the end of the loop.
      */
-    function contractDependency(
-        uint16 variableIndex
-    ) internal returns (bytes32) {
-        // binary tree which retrieves the appropriate contracts
+    function freezableVariableIndicies()
+        internal
+        pure
+        returns (uint8[] memory indicies_)
+    {}
+    //retrieves facets the changing freezeables depend on
+    function getFreezeableDependencies(
+        uint8[] memory _deltaState
+    ) internal pure returns (bytes32 dependentContracts_) {
+        for(uint16 _freezeableIndex; _freezeableIndex <  )
+        // Shift up bits until max freezable variables reached
+        //union all contracts that are dependent and return
     }
 
-    function getDependentContracts(
-        bytes32 _deltaState
+    function freezeableDependencies(uint8 freezeableIndex) internal pure 
+                                    returns( bytes32 freezeableDependency_){
+        //binary tree
+    }
+    function facetDependencies(
+        uint8 contractIndex
+    ) internal returns (bytes2, bytes32) {
+        assembly {
+            switch variableIndex
+            case 0 {
+                return(
+                    0x39428493,
+                    0x2400000000000000000000000000000000000000000000000000000000000000
+                )
+            }
+        }
+    }
+
+    function getFacetDependencies(
+        bytes32 _changedFrozenState
     ) internal pure returns (bytes32 dependentContracts_) {
         for (
             uint16 freezableVariableIndex;
@@ -69,37 +123,56 @@ contract FreezableStateVerifier is FreezableStructs {
         }
     }
 
+    /**
+     * @dev We perform two main operations here,
+     *      1. Verify facets that are being cut and are dependent on freezeables.
+     *      2. Assert all freezable facets that depend on the deltaState
+     * @param _changedFrozenState 
+     * @param _freezeableFacetCut 
+     * @param _verifyParams 
+     */
     function verify(
-        bytes32 _changedFrozenState,
-        FreezableFacetCut[] memory _freezeableFacetCut
+        bytes32 _deltaState,
+        LibDiamond.FacetCut[] memory _freezeableFacetCut,
+        FreezeableVerify[] memory _verifyParams
     ) external {
         bytes32 _verifiedContracts = bytes32(0);
+        if (_verifyParams.length != _freezeableFacetCut.length) {
+            revert InvalidVerifierArrayLengths(
+                _freezeableFacetCut.length,
+                _verifyParams.length
+            );
+        }
         for (uint256 _cutIndex; _cutIndex < _freezeableFacetCut; _cutIndex++) {
             address _freezableFacetAddress = _freezeableFacetCut[_cutIndex]
                 .facetAddress;
-            bytes2 _freezableFacetId = _freezableFacetCut[_cutIndex]
-                .freezeFacetVerify
+            uint16 _freezableFacetId = _verifyParams[_cutIndex]
                 .freezableFacetId;
-            bytes memory _verifyCalldata = _freezableFacetCut[_cutIndex]
-                .freezeFacetVerify
+            bytes memory _verifyCalldata = _verifyParams[_cutIndex]
                 .verifyCalldata;
-            if( _freezableFacetId == 0){
-                if(verifyCalldata.length != 0 ){
-                    revert InvalidContractVerification(_freezableFacetAddress,_freezableFacetId,_verifyCalldata);
-                }
-                continue;
-            }
+            //if not a freezable dependent facet, must have empty verify data
             if (
-                _freezableFacetId == 0 ||
-                _freezableFacetId > AMOUNT_FREEZABLE_CONTRACTS
+                // set non freezable facets at max uint16 instead of min,
+                // non-trivial selector of the 0th facet verifier should
+                // help avoid bugs
+                _freezableFacetId == type(uint16).max
             ) {
+                if (_verifyCalldata.length != 0) {
+                    revert NonFreezeableVerification(
+                        _freezableFacetAddress,
+                        _freezableFacetId,
+                        _verifyCalldata
+                    );
+                } else {
+                    continue;
+                }
+            }
+            //facet ids are type uint16 and sequentially ordered starting from zero.
+            if (_freezableFacetId > AMOUNT_FREEZABLE_CONTRACTS - 1) {
                 revert InvalidFreezableFacetIndex(_freezableFacetId);
             }
-
-            (bytes4 _verifySelector, ) = contractDependency(
-                _freezableFacetId
-            );
-
+            //output of contractDependency must be well defined at this point
+            (bytes4 _verifySelector, ) = facetDependencies(_freezableFacetId);
 
             bytes memory _calldata = abi.encodeWithSelector(
                 _verifySelector,
@@ -113,15 +186,18 @@ contract FreezableStateVerifier is FreezableStructs {
                     _verifySelector
                 );
             }
-        //update our verified contract dependencies
-        _verifiedContracts |= bytes32(1 << _freezableFacetId);
+            //update our verified contract dependencies
+            _verifiedContracts |= bytes32(1 << _freezableFacetId);
         }
-        bytes32 _contractDependencies = getDependentContracts(_changedFrozenState);
-        if( _verifiedContracts != _contractDependencies){
-            bytes32 stateDifference = _verifiedContracts ^ _contractDependencies;
+        bytes32 _contractDependencies = getDependentContracts(
+            _deltaState
+        );
+        if (_verifiedContracts != _contractDependencies) {
+            bytes32 stateDifference = _verifiedContracts ^
+                _contractDependencies;
             revert InvalidFreezableCut(stateDifference);
         }
-        emit FreezableFacetsVerified();
+        emit FreezableFacetsVerified(_deltaState,_verifyParams);
         //loop for freezefacetCuts
         //verify and update corresponding freezable contract in bytes32
         //require dependentContracts is equal to this final bytes32 updated value
@@ -183,4 +259,32 @@ contract FreezableStateVerifier is FreezableStructs {
  * shifting right 1 bit each time.
  * In the meantime we are updating a bytes32 of conractDependencies
  * vs looping over each variable slot
+ *
+ *
+ * The case for getting rid of byte32 representation and switching to uint8
+ * We can send an array of uint8 to represent state and delta state
+ *
+ * What do we want to be performed on chain with respect to guiding a state
+ * transformation?
+ *
+ * Delta state & New state
+ * Verify Dependent Contracts
+ * 
+ * 
+ * - Need to retrieve all of the facets that depend on changing freezeables. 
+ * - Need to retrieve all of the selectors from each dependent contract
+ *  (Note the verification processes already handles proper parameter configuration)
+ * 
+ * One potential issue with the status quo is it bypasses explicit checking of 
+ * freezeables, as we basically take in bytes and tunnel them straight to the 
+ * facet's verification method. 
+ * 
+ * Only way to bypass this would be to maintain an explicit parameter values corresponding
+ * to the current freezeables in storage (or part of their keccak256), and then comparing 
+ * them. Seems a bit more efficient to just call the facet at bay and let the developer
+ * handle this. After all it can be automatically generated for them. 
+ * 
+ * 
+ * 
+ * 
  */

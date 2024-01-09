@@ -1,61 +1,47 @@
 pragma solidity ^0.8.9;
 
 import "./LibFreezable.sol";
+import "./LibDiamond.sol";
 import "./FreezableStructs.sol";
-contract FreezableManage is FreezableStructs {
-    /**
-    @New - Creates a new state space
-     */
-    event FreezableTransformed(bytes32 newState, bytes32 deltaState);
-   
 
-    /**
-     *
-     * @param _freezableConfig
-     * @param _freezeFacetCut
-     * @param init
-     * @param _initializationData
-     */
+contract FreezableManage is FreezableStructs {
+ 
+    event FreezableTransformed(bytes32 newState, bytes32 deltaState);
+    bytes4 FREEZEABLE_VERIFY_SELECTOR = bytes4(0x23993949);
+
     function freezableManage(
-        FreezableConfig memory _freezableConfig,
-        FreezeFacetCut memory _freezeFacetCut,
-        address init,
-        bytes _initializationData
+        FreezableConfig memory _freezeableConfig,
+        FreezeableVerify[] memory _verifyCalldata,
+        LibDiamond.FacetCut[] memory _diamondCut,
+        address _init,
+        bytes calldata _initializationData
     ) external {
+        //require
         LibFreezable.FreezableStorage storage fs = LibFreezable
             .freezableStorage();
-        
-        /**
-            TRANSFORM - 
-                Contracts fixed order, represent particular facets, slots determine type. 
-            Call freezableVersion - 
-            
-            call(freezablVersion) - calls parameter verification with the struct, verifies parameters.
-            must include changeVector, current state (storage), previous params(storage), new state
+        address _verifyAddress;
+        bytes4 freezableVerifySelector;
 
-            Everything is done in freezableVersion
+        //Want the changed "state"
 
-            1. We send over to main. 
-            2. Struct only contains relevant parameters that are being frozen or are frozen and dependent on a changing contract. 
-            3. Verify the frozen non-changing parameters don't change, and the frozen changing parameters do change. 
-            3a. We create a for loop to call a verification method.
-
-            We don't need storage of frozen paramters if they're frozen into facets already, we 
-            Only verificaiton done is:
-            1. Find contract dependencies from changing vector.
-            2. Call this contract with the calldata for verification, must return success, bubble up error. 
-            3. Once all the contracts are verified, cut all of the facets. 
-         */
-        if (_freezableConfig.action == FreezableAction.Transform) {
-            (address _freezableManageAddress,bytes4 freezableVerifySelector) = fs.freezableManageAddress;
-            (bool success, bytes memory data) = _freezableManageAddress.call(
-                abi.encodeWithSelector(
-                    freezableVerifySelector,
-                    _freezableConfig.freezableTransform,
-                    _freezeFacetCut
-                )
-            );
+        if (_freezeableConfig.action == FreezableAction.Transform) {
+            _verifyAddress = fs.verifyAddress;
+        } 
+        else if (_freezeableConfig.action == FreezableAction.New) {
+            address _versionAddress = _freezeableConfig.newStateSpace.versionAddress;
+            fs.verifyAddress = _versionAddress;
         }
+        (bool success, ) = _verifyAddress.call(
+            abi.encodeWithSelector(
+                FREEZEABLE_VERIFY_SELECTOR,
+                _freezeableConfig.freezableTransform.deltaState,
+                _diamondCut,
+                _verifyCalldata
+
+
+            )
+        );
+        LibDiamond.diamondCut(_diamondCut,_init,_initializationData);
     }
 }
 
@@ -112,8 +98,17 @@ So we need a function that verifies particular facets and assures
 
 
 
+New state space we perform a transformation from a "null state"
+Currently a transformation doesn't check previous state on-chain, which we should do. 
+In a new state space we should ignore the previous state and transform into new state. 
+Now the issue is we don't really know what has changed, and given the current setup 
+would require verifying all freezables. Simple way to relate on contract change to the next?
+Could require a full verification, which doesn't seem bad. Transition from one state to 
+another could be done later. But really just involves verificaiton. 
 
+Treat a new transformation as going from an unfrozen state to the new state. 
 
+Eventually add in state consistency between state space transformations. 
 
 
 

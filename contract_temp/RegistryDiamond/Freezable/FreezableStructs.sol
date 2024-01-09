@@ -1,5 +1,7 @@
 pragma solidity ^0.8.9;
 
+import "./LibDiamond.sol";
+
 /**
  * @title
  * @author Joe Cocchi
@@ -8,36 +10,23 @@ pragma solidity ^0.8.9;
 contract FreezableStructs {
     enum FreezableAction {
         New,
-        Transform,
-        None,
-        Remove
+        Transform
     }
-    enum DiamondCutAction {
-        Add,
-        Replace,
-        Remove
+     struct FreezeableCut{
+        LibDiamond.FacetCut facetCut;
+        FreezeableVerify verify;
     }
-    /**
-    We need to perform two operations using properties from FreezeFacetCut:
-    1. Verify the facetAddress has the approprate freezeable parameter values
-        via verifyData propety. 
-    2. Run through the appropriate diamond cut logic
-     */
-    struct FreezeableFacetCut {
-        address facetAddress;
-        DiamondCutAction action;
-        bytes4[] facetSelectors;
-        FreezeVerify freezeFacetVerify;
-    }
+    
     /**
     Need a way to identify which facet we're on.
     1. Positional based- Create a vector and have the slots correspond to facets.
     2. Names - Create names for each facet. 
     Option 2 scaled better and is more understandable.  
      */
-    struct FreezeVerify {
+
+    struct FreezeableVerify {
         bytes verifyCalldata;
-        bytes2 freezableFacetId; //[1,2^16-1] valid facetFreezableIdenifiers,0 for non-case
+        uint16 freezableFacetId; //[1,2^16-1] valid facetFreezableIdenifiers,0 for non-case
 
     }
 
@@ -52,9 +41,27 @@ contract FreezableStructs {
         FreezableAction action;
         bytes4 freezableVerifySelector;
         FreezableTransform freezableTransform;
+        NewStateSpace newStateSpace;
     }
+    //Only need new state on a New State Space
     struct FreezableTransform {
-        bytes32 deltaState;
+        uint8[] deltaState;
         bytes32 newState;
     }
-}
+    /**
+     * @param contractMapping - Used for mapping 
+     */
+    struct NewStateSpace{
+        address versionAddress;
+        //uint8 contractMapping; 
+    }
+}   
+/**
+ * How do we manage facets that depend on freezeables generally
+ * but don't make any freezeable state changes? Always check 
+ * freezables to enforce state consistency?
+ * 
+ * So assert the following:
+ * 1. Each freezable dependent contract is verified
+ * 2. Each deltaState dependency contract is verified
+ */

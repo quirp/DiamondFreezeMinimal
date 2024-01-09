@@ -12,11 +12,11 @@ no stranger to smart contract developers. Scalable architectures open an entire 
 design space, and with that comes new approaches to optimizations. We will 
 demonstrate that **freezables** are not only a way to leverage the scalable design
 space for new efficiences, but showcase how the they can in some cases be **more** 
-gas efficient than their immutable counterpart. 
+gas efficient than their non-scalable counterpart. 
 
 ### What are freezables?
-Simply, freezables are variables that can transition back and forth between bytecode and storage. An example use case of this would be the commonly used storage variable *owner*. 
-Each time *owner* is read in a transaction, it will incur a 2100 SLOAD gas cost the first time, and 100 gas subsequently. If this variable is highly trafficked and deemed *slowly* changing, it is a favourable prospect to be a freezable variable (as ultimately this is a sacrifice by the developer for the consumer's sake in all likelihood). 
+Simply, freezables are variables that can be programatically transitioned back and forth between bytecode and storage. An example use case of this would be the commonly used storage variable *owner*. 
+Each time *owner* is read in a transaction, it will incur a 2100 SLOAD gas cost the first time, and 100 gas subsequently. If this variable is highly trafficked and deemed *slowly* changing, it is a favourable prospect to exist as a freezable variable (as ultimately this is a sacrifice by the developer for the consumer's sake in all likelihood). 
 
 ### How are freezables implemented?
 This still isn't obvious to me at the time of writing. What started out as a question
@@ -28,7 +28,12 @@ led to this are as follows:
 3. Given this condition, anytime our Dapp upgrades its version, we could potentially be changing the statespace (growing, shrinking, type change). In order to accomodate this, we'd also need a way to track this. 
 4. This leads us to 
 
-5. These contracts will likely be generated and can be re-used on-chain. The state space size is \`\`\` 2*N <= SIZE <= N^2 \`\`\` where,
-    a. 2*N if all the freezables are independent of one another
-    b. N^2 if every pair of freezables depends on one another. 
-6. 
+5. 
+6. In the scalable implementation we also include a registry service. This provides a dual purpose: 
+1. Allows for 3rd party verification: Given a given freezeable ...
+2. Enables reusability, lowering the costs transitioning a freezeable. 
+
+ The number of Diamond configurations given  \`\`\` 2*N <= SIZE <= N^2 \`\`\` where,
+    a. 2*N if all the freezables exclusively exis in seperate facets
+    b. N^2 if every pair of freezables exist in at least one facet.  
+    (Dependency meaning they exist in the same facet or not)
