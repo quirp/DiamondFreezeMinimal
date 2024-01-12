@@ -5,6 +5,7 @@
 function main(){
     /**
      * Load in config 
+     * Create an edit object for binding
      * Assert well assembled config file
      *      - Assert valid freezeable state 
      *          - Need freezeable state 
