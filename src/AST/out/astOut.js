@@ -22,7 +22,7 @@ async function mergeContract(contractName) {
     const artifact = await hre.artifacts.readArtifact(contractName)
     const sourceName = artifact.sourceName;
     // Get the merged code as a string
-    fs.writeFileSync("./A.sol", await  merge(sourceName));
+    fs.writeFileSync("./A.sol", await merge(sourceName));
     return await merge(sourceName);
 }
 

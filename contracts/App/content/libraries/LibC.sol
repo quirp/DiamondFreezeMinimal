@@ -1,6 +1,6 @@
 pragma solidity ^0.8.9;
 
-
+import "../freezeables/Bounds.sol";
 library LibC {
 
     bytes32 constant LIBC_STORAGE_POSITION = keccak256("diamond.storage.LibC");
@@ -8,7 +8,7 @@ library LibC {
     struct LibCStorage{
         //.. other storage
         bytes4 forbiddenSelector;
-
+        Bounds.Bound bound;
         //...
     }
 
@@ -26,4 +26,10 @@ library LibC {
         libCStorage().forbiddenSelector = _newForbiddenSelector;
     }
    
+   function _getBound() internal view returns (Bounds.Bound memory) {
+        return libCStorage().bound;
+    }
+    function _setBound(Bounds.Bound memory _newBound) internal {
+        libCStorage().bound = _newBound;
+    }
 }

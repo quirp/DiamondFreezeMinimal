@@ -2,10 +2,10 @@ pragma solidity ^0.8.9;
 
 import "../freezeables/Owner.sol";
 import "../freezeables/ForbiddenSelector.sol";
-contract iC is Owner,ForbiddenSelector {
+import "../freezeables/Bounds.sol";
+contract iC is Owner,ForbiddenSelector,Bounds {
     //freezeables
     address constant private owner = 0x742d35Cc6634C0532925a3b844Bc454e4438f44e; 
-    
     function _getOwner() internal view override returns (address) {
         return owner;
     }
@@ -17,6 +17,12 @@ contract iC is Owner,ForbiddenSelector {
     function modifyForbiddenSelector(bytes4 _newForbiddenSelector) internal {
         require(msg.sender == _getOwner(), "Must be the diamond owner.");
         LibC._setForbiddenSelector(_newForbiddenSelector);
+    }
+    function _getBound() internal view override returns(Bound memory){
+        return Bound([2,3],true);
+    }
+    function _getArray() external pure returns (uint8[4] memory){
+        return [uint8(3),3,4,5];
     }
 }
 

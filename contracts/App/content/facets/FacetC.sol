@@ -10,6 +10,14 @@ contract C is iC {
     function setForbiddenSelector(bytes4 _newForbiddenSelector) external {
         LibC._setForbiddenSelector(_newForbiddenSelector);
     }
+    function getBound() external view returns (Bound memory) {
+        _getBound();
+    }
+
+    function setBound(Bound memory _newBound) external {
+        LibC._setBound(_newBound);
+    }
+    
 }
 
 /**

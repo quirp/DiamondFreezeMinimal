@@ -9,17 +9,32 @@
  * 
  *  Assert well formed file. 
  *  Must be 
- * 
+ * User must create a config file that matches the 
  */
+const fs = require("fs")
+const {baseConfigAssertions} = require("./configAssertion")
+const {ContractGeneratorManager} = require("../ContractGeneratorManager")
+function mainConfig(freezeableConfig, transition){
+    baseConfigAssertions(freezeableConfig)
+    /**
+     * Assert properties of config.js isn't malformed with respect to fields, types, structure
+     */
+    freezeablePropertyAssertion(freezeables)
+    //return inserts that will be pluggged in later. 
+    
+    return 
 
-function mainConfig(){
     //assert state consistency with previous config file 
+    //
     
 }
-function currentStateConsistencyAssert(){
-    // assert all freezeable attributes match
-    
-}
-function newStateConsistencyAssert(){
-
-}
+/**
+ * We're going to have a current and a new config file for the state transition. 
+ * Current config assertions:
+ *      FacetName
+ *            "FacetName":"",
+                    "InternalContractInitializor":"",
+                    "freezeableInternalGetter" : {
+                        "getterSignature":"",
+                        "nonfrozenSignature":"",
+ */

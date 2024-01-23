@@ -2,10 +2,10 @@ pragma solidity ^0.8.9;
 
 import "../libraries/LibA.sol";
 
-abstract contract Freezeable1 {
-    function _getFreezeable1() internal view virtual returns (uint256);
+abstract contract MarketFee {
+    function _getMarketFee() internal view virtual returns (uint256);
 
-    function _getFreezeable1UF() internal view returns (uint256) {
-        return LibA._getFreezeable1();
+    function _getMarketFeeUF() internal view returns (uint256) {
+        return LibA._getMarketFee();
     }
 }

@@ -41,7 +41,8 @@ contract FreezableStateVerifier is FreezableStructs {
 
     event FreezableFacetsVerified(bytes32, FreezeableVerify[]);
 
-    uint16 constant AMOUNT_FREEZEABLE_CONTRACTS = 5;
+    uint16 constant NULL_FACET_DEPENDENCY_INDEX = type(uint16).max();
+    uint16 constant AMOUNT_FREEZEABLE_FACETS = 5;
     uint8 constant AMOUNT_FREEZEABLE_VARIABLES = 20;
 
    
@@ -116,7 +117,7 @@ contract FreezableStateVerifier is FreezableStructs {
     ) internal pure returns (bytes32 dependentContracts_) {
         for (
             uint16 freezableVariableIndex;
-            freezableVariableIndex < AMOUNT_FREEZABLE_VARIABLES;
+            freezableVariableIndex < AMOUNT_FREEZEABLE_VARIABLES;
             freezableVariableIndex++
         ) {
             dependentContracts_ |= contractDependencies(freezableVariableIndex);
@@ -168,7 +169,7 @@ contract FreezableStateVerifier is FreezableStructs {
                 }
             }
             //facet ids are type uint16 and sequentially ordered starting from zero.
-            if (_freezableFacetId > AMOUNT_FREEZABLE_CONTRACTS - 1) {
+            if (_freezableFacetId > AMOUNT_FREEZEABLE_FACETS - 1) {
                 revert InvalidFreezableFacetIndex(_freezableFacetId);
             }
             //output of contractDependency must be well defined at this point
