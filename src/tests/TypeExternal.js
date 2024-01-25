@@ -6,18 +6,18 @@ describe('TaskManager', () => {
     before( async function(){
         sampleAST = await ASTOut(mainContractName)
         console.log(3)
+        //look at type patterns and create a schema to convert their solidity to 
+        //js counterparts
     })
     describe('isParent', () => {        
         it('should return true if contract is a parent', () => {
             // Placeholder for the sample AST
-            const taskManager = new TaskManager(sampleAST,mainContractName);
             const result = taskManager.isParent('iC');
 
             assert.strictEqual(result, true);
         });
 
         it('should return false if contract is not a parent', () => {         
-            const taskManager = new TaskManager(sampleAST);
             const result = taskManager.isParent('NonExistentContract');
 
             assert.strictEqual(result, false);
